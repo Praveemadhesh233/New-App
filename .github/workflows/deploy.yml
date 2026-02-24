@@ -15,6 +15,34 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # needed to get all tags
+
+      # ✅ NEW STEP — AUTO VERSION TAG
+      - name: Create Auto Version Tag
+        id: tag_version
+        run: |
+          git fetch --tags
+
+          # Get latest tag or default v1.0.0
+          latestTag=$(git tag -l "v*" | sort -V | tail -n 1)
+
+          if [ -z "$latestTag" ]; then
+            newTag="v1.0.0"
+          else
+            version=${latestTag#v}
+            IFS='.' read -r major minor patch <<< "$version"
+            patch=$((patch + 1))
+            newTag="v$major.$minor.$patch"
+          fi
+
+          echo "New Tag: $newTag"
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git tag $newTag
+          git push origin $newTag
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
