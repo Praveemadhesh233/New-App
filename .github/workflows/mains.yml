@@ -15,11 +15,10 @@ jobs:
       with:
         node-version: 18
 
-    - name: Fix Tailwind native binding issue
-      run: |
-        rm -rf node_modules
-        rm -f package-lock.json
-        npm install --force
+    - name: Install dependencies
+      run: npm install
 
     - name: Build project
       run: npm run build
+      env:
+        TAILWIND_DISABLE_OXIDE: true
